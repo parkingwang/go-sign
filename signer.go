@@ -15,6 +15,7 @@ import (
 type CryptoFunc func(secretKey string, args string) []byte
 
 type GoSigner struct {
+	*DefaultFields
 	body map[string]interface{}
 
 	bodyPrefix string // 参数体前缀
@@ -27,11 +28,12 @@ type GoSigner struct {
 
 func NewGoSigner(cryptoFunc CryptoFunc) *GoSigner {
 	return &GoSigner{
-		body:       make(map[string]interface{}),
-		bodyPrefix: "",
-		bodySuffix: "",
-		splitChar:  "",
-		cryptoFunc: cryptoFunc,
+		DefaultFields: newDefaultSignFields(),
+		body:          make(map[string]interface{}),
+		bodyPrefix:    "",
+		bodySuffix:    "",
+		splitChar:     "",
+		cryptoFunc:    cryptoFunc,
 	}
 }
 
@@ -56,17 +58,17 @@ func (slf *GoSigner) AddBody(key string, value interface{}) *GoSigner {
 
 // SetTimeStamp 设置时间戳参数
 func (slf *GoSigner) SetTimeStamp(ts int64) *GoSigner {
-	return slf.AddBody(fieldNameTimestamp, ts)
+	return slf.AddBody(slf.fieldNameTimestamp, ts)
 }
 
 // SetNonceStr 设置随机字符串参数
 func (slf *GoSigner) SetNonceStr(nonce string) *GoSigner {
-	return slf.AddBody(fieldNameNonceStr, nonce)
+	return slf.AddBody(slf.fieldNameNonceStr, nonce)
 }
 
 // SetAppId 设置AppId参数
 func (slf *GoSigner) SetAppId(appId string) *GoSigner {
-	return slf.AddBody(fieldNameAppId, appId)
+	return slf.AddBody(slf.fieldNameAppId, appId)
 }
 
 // RandNonceStr 自动生成16位随机字符串参数
@@ -114,7 +116,7 @@ func (slf *GoSigner) GetSignBodyString() string {
 func (slf *GoSigner) GetSignedQuery() string {
 	body := slf.getSortedBodyString()
 	sign := slf.GetSignature()
-	return body + "&" + fieldNameSign + "=" + sign
+	return body + "&" + slf.fieldNameSign + "=" + sign
 }
 
 // GetSignature 获取签名字符串

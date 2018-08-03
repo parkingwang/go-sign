@@ -67,6 +67,8 @@ fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
 		t.Fatal(err)
 	}
 
+	// 或者使用verifier.ParseValues(Values)来解析。
+
 	// 第二步：（可选）校验是否包含签名校验必要的参数
 	if err := verifier.MustHasOtherFields("plate_number"); nil != err {
 		t.Fatal(err)
@@ -102,6 +104,11 @@ fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
 	}
 
 ```
+
+# 注意事项
+
+1. 请求参数是多值(Slice)的，在进入签名参数体时，会将它们以英文逗号JOIN成单独字符串再进行签名。
+2. 获取Int64类型参数时，如果参数对应的值不存在、不可转换成Int64类型，会返回默认值0；
 
 
 # License

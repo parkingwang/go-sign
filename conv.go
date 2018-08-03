@@ -2,8 +2,8 @@ package sign
 
 import (
 	"encoding/json"
-	"strconv"
 	"fmt"
+	"strconv"
 )
 
 //
@@ -11,6 +11,9 @@ import (
 //
 
 func convertToInt64(val interface{}) int64 {
+	if nil == val {
+		return 0
+	}
 	switch val.(type) {
 	case json.Number:
 		i, _ := val.(json.Number).Int64()
@@ -33,7 +36,7 @@ func convertToInt64(val interface{}) int64 {
 	default:
 		i, e := strconv.ParseInt(fmt.Sprintf("%v", val), 10, 64)
 		if nil != e {
-			panic(e)
+			return 0
 		}
 		return i
 	}
