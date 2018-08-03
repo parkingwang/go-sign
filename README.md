@@ -84,7 +84,7 @@ fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
 	signer.SetBody(verifier.GetBodyWithoutSign())
 
 	// 第六步：从数据库读取AppID对应的SecretKey
-	// appid := verifier.MustString("appid")
+	// appid := verifier.GetAppId()
 	secretKey := "d93047a4d6fe6111"
 
 	// 使用同样的WrapBody方式

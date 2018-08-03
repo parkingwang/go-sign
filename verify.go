@@ -1,11 +1,11 @@
 package sign
 
 import (
-	"time"
-	"net/url"
 	"errors"
 	"fmt"
+	"net/url"
 	"strings"
+	"time"
 )
 
 //
@@ -88,6 +88,18 @@ func (slf *GoVerify) CheckTimeStamp() error {
 		return errors.New(fmt.Sprintf("TIMESTAMP_TIMEOUT<%d>", timestamp))
 	}
 	return nil
+}
+
+func (slf *GoVerify) GetAppId() string {
+	return slf.MustString(fieldNameAppId)
+}
+
+func (slf *GoVerify) GetNonceStr() string {
+	return slf.MustString(fieldNameNonceStr)
+}
+
+func (slf *GoVerify) GetSign() string {
+	return slf.MustString(fieldNameSign)
 }
 
 // GetBodyWithoutSign 获取所有参数体。其中不包含sign 字段
