@@ -7,7 +7,7 @@ import (
 )
 
 //
-// Author: 陈永佳 chenyongjia@parkingwang.com, yoojiachen@gmail.com
+// Author: 陈哈哈 chenyongjia@parkingwang.com, yoojiachen@gmail.com
 //
 
 func TestGoSignMd5(t *testing.T) {
@@ -40,9 +40,9 @@ func TestGoSigner_AddBody(t *testing.T) {
 		signer.AddBodies(k, v)
 	}
 
-	body.Add(DefFieldNameTimeStamp, "1234567890")
-	body.Add(DefFieldNameAppId, "yoojia001")
-	body.Add(DefFieldNameNonceStr, "WAHAHAH")
+	body.Add(KeyNameTimeStamp, "1234567890")
+	body.Add(KeyNameAppId, "yoojia001")
+	body.Add(KeyNameNonceStr, "WAHAHAH")
 
 	fmt.Println("生成签字字符串：" + signer.GetSignBodyString())
 	fmt.Println("输出URL字符串：" + signer.GetSignedQuery())

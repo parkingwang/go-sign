@@ -7,7 +7,7 @@ import (
 )
 
 //
-// Author: 陈永佳 chenyongjia@parkingwang.com, yoojiachen@gmail.com
+// Author: 陈哈哈 chenyongjia@parkingwang.com, yoojiachen@gmail.com
 //
 
 func convertToInt64(val interface{}) int64 {
@@ -34,10 +34,11 @@ func convertToInt64(val interface{}) int64 {
 		return int64(val.(float64))
 
 	default:
-		i, e := strconv.ParseInt(fmt.Sprintf("%v", val), 10, 64)
-		if nil != e {
+		sv := fmt.Sprintf("%v", val)
+		if iv, err := strconv.ParseInt(sv, 10, 64); nil != err {
 			return 0
+		} else {
+			return iv
 		}
-		return i
 	}
 }

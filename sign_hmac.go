@@ -6,7 +6,7 @@ import (
 )
 
 //
-// Author: 陈永佳 chenyongjia@parkingwang.com, yoojiachen@gmail.com
+// Author: 陈哈哈 chenyongjia@parkingwang.com, yoojiachen@gmail.com
 //
 
 func Hmac5Sign(secretKey, body string) []byte {

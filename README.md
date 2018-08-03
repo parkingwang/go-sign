@@ -26,21 +26,21 @@ dep ensure --add github.com/parkingwang/go-sign
 ## Usage
 
 ```go
-gos := NewGoSignerMd5()
+signer := NewGoSignerMd5()
 
 // 设置签名基本参数
-gos.SetAppId("9d8a121ce581499d")
-gos.SetTimeStamp(1532585241)
-gos.SetNonceStr("ibuaiVcKdpRxkhJA")
+signer.SetAppId("9d8a121ce581499d")
+signer.SetTimeStamp(1532585241)
+signer.SetNonceStr("ibuaiVcKdpRxkhJA")
 
 // 设置参与签名的其它参数
-gos.AddBody("plate_number", "豫A66666")
+signer.AddBody("plate_number", "豫A66666")
 
 // AppSecretKey，前后包装签名体字符串
-gos.SetAppSecretWrapBody("d93047a4d6fe6111")
+signer.SetAppSecretWrapBody("d93047a4d6fe6111")
 
-fmt.Println("生成签字字符串：" + gos.GetUnsignedString())
-fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
+fmt.Println("生成签字字符串：" + signer.GetUnsignedString())
+fmt.Println("输出URL字符串：" + signer.GetSignedQuery())
 ```
 
 输出结果为：
@@ -114,18 +114,18 @@ fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
 # License
 
 ```
-   Copyright 2018 Xi'An iRain IoT Technology Service Co.,Ltd
+Copyright 2018 Xi'An iRain IoT Technology Service Co.,Ltd
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+   http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 ```

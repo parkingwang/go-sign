@@ -8,7 +8,7 @@ import (
 )
 
 //
-// Author: 陈永佳 chenyongjia@parkingwang.com, yoojiachen@gmail.com
+// Author: 陈哈哈 chenyongjia@parkingwang.com, yoojiachen@gmail.com
 // API签名
 //
 
@@ -16,12 +16,12 @@ import (
 type CryptoFunc func(secretKey string, args string) []byte
 
 type GoSigner struct {
-	*DefaultFields
-	body url.Values
+	*DefaultKeyName
 
-	bodyPrefix string // 参数体前缀
-	bodySuffix string // 参数体后缀
-	splitChar  string // 前缀、后缀分隔符号
+	body       url.Values // 签名参数体
+	bodyPrefix string     // 参数体前缀
+	bodySuffix string     // 参数体后缀
+	splitChar  string     // 前缀、后缀分隔符号
 
 	secretKey  string // 签名密钥
 	cryptoFunc CryptoFunc
@@ -29,12 +29,12 @@ type GoSigner struct {
 
 func NewGoSigner(cryptoFunc CryptoFunc) *GoSigner {
 	return &GoSigner{
-		DefaultFields: newDefaultSignFields(),
-		body:          make(url.Values),
-		bodyPrefix:    "",
-		bodySuffix:    "",
-		splitChar:     "",
-		cryptoFunc:    cryptoFunc,
+		DefaultKeyName: newDefaultKeyName(),
+		body:           make(url.Values),
+		bodyPrefix:     "",
+		bodySuffix:     "",
+		splitChar:      "",
+		cryptoFunc:     cryptoFunc,
 	}
 }
 
@@ -63,17 +63,17 @@ func (slf *GoSigner) AddBodies(key string, value []string) *GoSigner {
 
 // SetTimeStamp 设置时间戳参数
 func (slf *GoSigner) SetTimeStamp(ts int64) *GoSigner {
-	return slf.AddBody(slf.fieldNameTimestamp, fmt.Sprintf("%d", ts))
+	return slf.AddBody(slf.keyNameTimestamp, fmt.Sprintf("%d", ts))
 }
 
 // SetNonceStr 设置随机字符串参数
 func (slf *GoSigner) SetNonceStr(nonce string) *GoSigner {
-	return slf.AddBody(slf.fieldNameNonceStr, nonce)
+	return slf.AddBody(slf.keyNameNonceStr, nonce)
 }
 
 // SetAppId 设置AppId参数
 func (slf *GoSigner) SetAppId(appId string) *GoSigner {
-	return slf.AddBody(slf.fieldNameAppId, appId)
+	return slf.AddBody(slf.keyNameAppId, appId)
 }
 
 // RandNonceStr 自动生成16位随机字符串参数
@@ -121,7 +121,7 @@ func (slf *GoSigner) GetSignBodyString() string {
 func (slf *GoSigner) GetSignedQuery() string {
 	body := slf.getSortedBodyString()
 	sign := slf.GetSignature()
-	return body + "&" + slf.fieldNameSign + "=" + sign
+	return body + "&" + slf.keyNameSign + "=" + sign
 }
 
 // GetSignature 获取签名字符串
