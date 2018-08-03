@@ -71,26 +71,26 @@ func (slf *GoVerifier) MustStrings(key string) []string {
 
 // MustInt64 获取Int64值
 func (slf *GoVerifier) MustInt64(key string) int64 {
-	return convertToInt64(slf.body[key])
+	return convertToInt64(slf.MustString(key))
 }
 
-// MustHasFields 必须包含指定的字段参数
-func (slf *GoVerifier) MustHasFields(keys ...string) error {
+// MustHasKeys 必须包含指定的字段参数
+func (slf *GoVerifier) MustHasKeys(keys ...string) error {
 	for _, key := range keys {
 		if _, hit := slf.body[key]; !hit {
-			return errors.New(fmt.Sprintf("PARAM_MISSED:<%s>", key))
+			return errors.New(fmt.Sprintf("KEY_MISSED:<%s>", key))
 		}
 	}
 	return nil
 }
 
-// MustHasFields 必须包含除特定的[time_stamp, nonce_str, sign, appid]等之外的指定的字段参数
-func (slf *GoVerifier) MustHasOtherFields(keys ...string) error {
+// MustHasKeys 必须包含除特定的[time_stamp, nonce_str, sign, appid]等之外的指定的字段参数
+func (slf *GoVerifier) MustHasOtherKeys(keys ...string) error {
 	fields := []string{slf.fieldNameTimestamp, slf.fieldNameNonceStr, slf.fieldNameSign, slf.fieldNameAppId}
 	if len(keys) > 0 {
 		fields = append(fields, keys...)
 	}
-	return slf.MustHasFields(fields...)
+	return slf.MustHasKeys(fields...)
 }
 
 // 检查时间戳有效期
@@ -98,7 +98,7 @@ func (slf *GoVerifier) CheckTimeStamp() error {
 	timestamp := slf.GetTimestamp()
 	thatTime := time.Unix(timestamp, 0)
 	if time.Now().Sub(thatTime) > slf.timeout {
-		return errors.New(fmt.Sprintf("TIMESTAMP_TIMEOUT<%d>", timestamp))
+		return errors.New(fmt.Sprintf("TIMESTAMP_TIMEOUT:<%d>", timestamp))
 	}
 	return nil
 }
@@ -126,6 +126,14 @@ func (slf *GoVerifier) GetBodyWithoutSign() url.Values {
 		if k != slf.fieldNameSign {
 			out[k] = v
 		}
+	}
+	return out
+}
+
+func (slf *GoVerifier) GetBody() url.Values {
+	out := make(url.Values)
+	for k, v := range slf.body {
+		out[k] = v
 	}
 	return out
 }

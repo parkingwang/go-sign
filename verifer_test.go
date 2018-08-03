@@ -22,7 +22,7 @@ func TestGoVerify_ParseQuery(t *testing.T) {
 	}
 
 	// 第二步：（可选）校验是否包含签名校验必要的参数
-	if err := verifier.MustHasOtherFields("plate_number"); nil != err {
+	if err := verifier.MustHasOtherKeys("plate_number"); nil != err {
 		t.Fatal(err)
 	}
 
