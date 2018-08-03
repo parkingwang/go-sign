@@ -14,7 +14,7 @@ import (
 
 type GoVerifier struct {
 	*DefaultFields
-	body map[string]interface{}
+	body url.Values
 
 	timeout time.Duration // 签名过期时间
 }
@@ -22,7 +22,7 @@ type GoVerifier struct {
 func NewGoVerifier() *GoVerifier {
 	return &GoVerifier{
 		DefaultFields: newDefaultSignFields(),
-		body:          make(map[string]interface{}),
+		body:          make(url.Values),
 		timeout:       time.Minute * 5,
 	}
 }
@@ -45,11 +45,7 @@ func (slf *GoVerifier) ParseQuery(requestUri string) error {
 // ParseValues 将Values参数列表解析成参数Map。如果参数是多值的，则将它们以逗号Join成字符串。
 func (slf *GoVerifier) ParseValues(values url.Values) {
 	for key, value := range values {
-		if len(value) == 1 {
-			slf.body[key] = value[0]
-		} else {
-			slf.body[key] = strings.Join(value, ",")
-		}
+		slf.body[key] = value
 	}
 }
 
@@ -61,7 +57,16 @@ func (slf *GoVerifier) SetTimeout(timeout time.Duration) *GoVerifier {
 
 // MustString 获取字符串值
 func (slf *GoVerifier) MustString(key string) string {
-	return fmt.Sprintf("%v", slf.body[key])
+	if ss := slf.MustStrings(key); len(ss) == 0 {
+		return ""
+	} else {
+		return ss[0]
+	}
+}
+
+// MustString 获取字符串值数组
+func (slf *GoVerifier) MustStrings(key string) []string {
+	return slf.body[key]
 }
 
 // MustInt64 获取Int64值
@@ -115,8 +120,8 @@ func (slf *GoVerifier) GetTimestamp() int64 {
 }
 
 // GetBodyWithoutSign 获取所有参数体。其中不包含sign 字段
-func (slf *GoVerifier) GetBodyWithoutSign() map[string]interface{} {
-	out := make(map[string]interface{})
+func (slf *GoVerifier) GetBodyWithoutSign() url.Values {
+	out := make(url.Values)
 	for k, v := range slf.body {
 		if k != slf.fieldNameSign {
 			out[k] = v

@@ -2,6 +2,7 @@ package sign
 
 import (
 	"fmt"
+	"net/url"
 	"sort"
 	"strings"
 )
@@ -16,7 +17,7 @@ type CryptoFunc func(secretKey string, args string) []byte
 
 type GoSigner struct {
 	*DefaultFields
-	body map[string]interface{}
+	body url.Values
 
 	bodyPrefix string // 参数体前缀
 	bodySuffix string // 参数体后缀
@@ -29,7 +30,7 @@ type GoSigner struct {
 func NewGoSigner(cryptoFunc CryptoFunc) *GoSigner {
 	return &GoSigner{
 		DefaultFields: newDefaultSignFields(),
-		body:          make(map[string]interface{}),
+		body:          make(url.Values),
 		bodyPrefix:    "",
 		bodySuffix:    "",
 		splitChar:     "",
@@ -46,19 +47,23 @@ func NewGoSignerHmac() *GoSigner {
 }
 
 // SetBody 设置整个参数体Body对象。
-func (slf *GoSigner) SetBody(body map[string]interface{}) {
+func (slf *GoSigner) SetBody(body url.Values) {
 	slf.body = body
 }
 
 // AddBody 添加签名体字段和值
-func (slf *GoSigner) AddBody(key string, value interface{}) *GoSigner {
+func (slf *GoSigner) AddBody(key string, value string) *GoSigner {
+	return slf.AddBodies(key, []string{value})
+}
+
+func (slf *GoSigner) AddBodies(key string, value []string) *GoSigner {
 	slf.body[key] = value
 	return slf
 }
 
 // SetTimeStamp 设置时间戳参数
 func (slf *GoSigner) SetTimeStamp(ts int64) *GoSigner {
-	return slf.AddBody(slf.fieldNameTimestamp, ts)
+	return slf.AddBody(slf.fieldNameTimestamp, fmt.Sprintf("%d", ts))
 }
 
 // SetNonceStr 设置随机字符串参数
@@ -132,7 +137,7 @@ func (slf *GoSigner) getSortedBodyString() string {
 ////
 
 // SortKVPairs 将Map的键值对，按字典顺序拼接成字符串
-func SortKVPairs(m map[string]interface{}) string {
+func SortKVPairs(m url.Values) string {
 	size := len(m)
 	if size == 0 {
 		return ""
@@ -146,7 +151,7 @@ func SortKVPairs(m map[string]interface{}) string {
 	sort.Strings(keys)
 	pairs := make([]string, size)
 	for i, key := range keys {
-		pairs[i] = fmt.Sprintf("%s=%v", key, m[key])
+		pairs[i] = key + "=" + strings.Join(m[key], ",")
 	}
 	return strings.Join(pairs, "&")
 }
