@@ -1,8 +1,8 @@
 package sign
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 //
@@ -14,7 +14,7 @@ func TestGoVerify_ParseQuery(t *testing.T) {
 		"&time_stamp=1532585241&sign=072defd1a251dc58e4d1799e17ffe7a4"
 
 	// 第一步：创建GoVerify校验类
-	verifier := NewGoVerify()
+	verifier := NewGoVerifier()
 
 	// 假定从RequestUri中读取校验参数
 	if err := verifier.ParseQuery(requestUri); nil != err {
@@ -32,7 +32,7 @@ func TestGoVerify_ParseQuery(t *testing.T) {
 	//}
 
 	// 第四步，创建GoSign来重现客户端的签名信息：
-	signer := NewGoSignMd5()
+	signer := NewGoSignerMd5()
 
 	// 第五步：从GoVerify中读取所有请求参数
 	signer.SetBody(verifier.GetBodyWithoutSign())

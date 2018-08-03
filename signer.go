@@ -1,9 +1,9 @@
 package sign
 
 import (
+	"fmt"
 	"sort"
 	"strings"
-	"fmt"
 )
 
 //
@@ -14,7 +14,7 @@ import (
 // 签名加密函数
 type CryptoFunc func(secretKey string, args string) []byte
 
-type GoSign struct {
+type GoSigner struct {
 	body map[string]interface{}
 
 	bodyPrefix string // 参数体前缀
@@ -25,8 +25,8 @@ type GoSign struct {
 	cryptoFunc CryptoFunc
 }
 
-func NewGoSign(cryptoFunc CryptoFunc) *GoSign {
-	return &GoSign{
+func NewGoSigner(cryptoFunc CryptoFunc) *GoSigner {
+	return &GoSigner{
 		body:       make(map[string]interface{}),
 		bodyPrefix: "",
 		bodySuffix: "",
@@ -35,95 +35,95 @@ func NewGoSign(cryptoFunc CryptoFunc) *GoSign {
 	}
 }
 
-func NewGoSignMd5() *GoSign {
-	return NewGoSign(Md5Sign)
+func NewGoSignerMd5() *GoSigner {
+	return NewGoSigner(Md5Sign)
 }
 
-func NewGoSignHmac() *GoSign {
-	return NewGoSign(Hmac5Sign)
+func NewGoSignerHmac() *GoSigner {
+	return NewGoSigner(Hmac5Sign)
 }
 
 // SetBody 设置整个参数体Body对象。
-func (slf *GoSign) SetBody(body map[string]interface{}) {
+func (slf *GoSigner) SetBody(body map[string]interface{}) {
 	slf.body = body
 }
 
 // AddBody 添加签名体字段和值
-func (slf *GoSign) AddBody(key string, value interface{}) *GoSign {
+func (slf *GoSigner) AddBody(key string, value interface{}) *GoSigner {
 	slf.body[key] = value
 	return slf
 }
 
 // SetTimeStamp 设置时间戳参数
-func (slf *GoSign) SetTimeStamp(ts int64) *GoSign {
+func (slf *GoSigner) SetTimeStamp(ts int64) *GoSigner {
 	return slf.AddBody(fieldNameTimestamp, ts)
 }
 
 // SetNonceStr 设置随机字符串参数
-func (slf *GoSign) SetNonceStr(nonce string) *GoSign {
+func (slf *GoSigner) SetNonceStr(nonce string) *GoSigner {
 	return slf.AddBody(fieldNameNonceStr, nonce)
 }
 
 // SetAppId 设置AppId参数
-func (slf *GoSign) SetAppId(appId string) *GoSign {
+func (slf *GoSigner) SetAppId(appId string) *GoSigner {
 	return slf.AddBody(fieldNameAppId, appId)
 }
 
 // RandNonceStr 自动生成16位随机字符串参数
-func (slf *GoSign) RandNonceStr() *GoSign {
+func (slf *GoSigner) RandNonceStr() *GoSigner {
 	return slf.SetNonceStr(RandString(16))
 }
 
 // SetSignBodyPrefix 设置签名字符串的前缀字符串
-func (slf *GoSign) SetSignBodyPrefix(prefix string) *GoSign {
+func (slf *GoSigner) SetSignBodyPrefix(prefix string) *GoSigner {
 	slf.bodyPrefix = prefix
 	return slf
 }
 
 // SetSignBodySuffix 设置签名字符串的后缀字符串
-func (slf *GoSign) SetSignBodySuffix(suffix string) *GoSign {
+func (slf *GoSigner) SetSignBodySuffix(suffix string) *GoSigner {
 	slf.bodySuffix = suffix
 	return slf
 }
 
 // SetSplitChar设置前缀、后缀与签名体之间的分隔符号。默认为空字符串
-func (slf *GoSign) SetSplitChar(split string) *GoSign {
+func (slf *GoSigner) SetSplitChar(split string) *GoSigner {
 	slf.splitChar = split
 	return slf
 }
 
 // SetAppSecret 设置签名密钥
-func (slf *GoSign) SetAppSecret(appSecret string) *GoSign {
+func (slf *GoSigner) SetAppSecret(appSecret string) *GoSigner {
 	slf.secretKey = appSecret
 	return slf
 }
 
 // SetAppSecretWrapBody 在签名参数体的首部和尾部，拼接AppSecret字符串。
-func (slf *GoSign) SetAppSecretWrapBody(appSecret string) *GoSign {
+func (slf *GoSigner) SetAppSecretWrapBody(appSecret string) *GoSigner {
 	slf.SetSignBodyPrefix(appSecret)
 	slf.SetSignBodySuffix(appSecret)
 	return slf.SetAppSecret(appSecret)
 }
 
 // GetSignBodyString 获取用于签名的原始字符串
-func (slf *GoSign) GetSignBodyString() string {
+func (slf *GoSigner) GetSignBodyString() string {
 	return slf.bodyPrefix + slf.splitChar + slf.getSortedBodyString() + slf.splitChar + slf.bodySuffix
 }
 
 // GetSignedQuery 获取带签名参数的字符串
-func (slf *GoSign) GetSignedQuery() string {
+func (slf *GoSigner) GetSignedQuery() string {
 	body := slf.getSortedBodyString()
 	sign := slf.GetSignature()
 	return body + "&" + fieldNameSign + "=" + sign
 }
 
 // GetSignature 获取签名字符串
-func (slf *GoSign) GetSignature() string {
+func (slf *GoSigner) GetSignature() string {
 	sign := fmt.Sprintf("%x", slf.cryptoFunc(slf.secretKey, slf.GetSignBodyString()))
 	return sign
 }
 
-func (slf *GoSign) getSortedBodyString() string {
+func (slf *GoSigner) getSortedBodyString() string {
 	return SortKVPairs(slf.body)
 }
 

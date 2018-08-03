@@ -16,17 +16,17 @@ dep ensure --add github.com/parkingwang/go-sign
 
 # 0x01 生成签名信息
 
-`sign.GoSign`工具类，默认支持两种签名生成算法：
+`sign.GoSigner`工具类，默认支持两种签名生成算法：
 
-1. MD5: 见 `NewGoSignMd5()` 函数
-2. Sha1 + Hmac: 见：`NewGoSignHmac()`函数
+1. MD5: 见 `NewGoSignerMd5()` 函数
+2. Sha1 + Hmac: 见：`NewGoSignerHmac()`函数
 
-如果需要使用其它签名生成算法，使用 `NewGoSign(FUNC)` 指定实现签名生成算法的实现即可。
+如果需要使用其它签名生成算法，使用 `NewGoSigner(FUNC)` 指定实现签名生成算法的实现即可。
 
 ## Usage
 
 ```go
-gos := NewGoSignMd5()
+gos := NewGoSignerMd5()
 
 // 设置签名基本参数
 gos.SetAppId("9d8a121ce581499d")
@@ -51,7 +51,7 @@ fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
 
 # 0x02 校验签名信息
 
-`sign.GoVerify` 工具类，用来校验签名参数的格式和时间戳。它与GoSign一起使用，用于服务端校验API请求的签名信息。
+`sign.GoVerifier` 工具类，用来校验签名参数的格式和时间戳。它与GoSigner一起使用，用于服务端校验API请求的签名信息。
 
 ## Usage
 
@@ -59,8 +59,8 @@ fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
     requestUri := "/restful/api/numbers?appid=9d8a121ce581499d&nonce_str=ibuaiVcKdpRxkhJA&plate_number=豫A66666" +
 		"&time_stamp=1532585241&sign=072defd1a251dc58e4d1799e17ffe7a4"
 
-	// 第一步：创建GoVerify校验类
-	verifier := NewGoVerify()
+	// 第一步：创建GoVerifier校验类
+	verifier := NewGoVerifier()
 
 	// 假定从RequestUri中读取校验参数
 	if err := verifier.ParseQuery(requestUri); nil != err {
@@ -73,14 +73,17 @@ fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
 	}
 
 	// 第三步：检查时间戳是否超时。
-	//if err := verifier.CheckTimeStamp(); nil != err {
-	//	t.Fatal(err)
-	//}
 
-	// 第四步: 创建GoSign来重现客户端的签名信息
-	signer := NewGoSignMd5()
+	// 时间戳超时：5分钟
+	verifier.SetTimeout(time.Minute * 5)
+	if err := verifier.CheckTimeStamp(); nil != err {
+		t.Fatal(err)
+	}
 
-	// 第五步：从GoVerify中读取所有请求参数
+	// 第四步: 创建GoSigner来重现客户端的签名信息
+	signer := NewGoSignerMd5()
+
+	// 第五步：从GoVerifier中读取所有请求参数
 	signer.SetBody(verifier.GetBodyWithoutSign())
 
 	// 第六步：从数据库读取AppID对应的SecretKey
@@ -90,7 +93,7 @@ fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
 	// 使用同样的WrapBody方式
 	signer.SetAppSecretWrapBody(secretKey)
 
-	// 生成
+	// 服务端根据客户端参数生成签名
 	sign := signer.GetSignature()
 
     // 最后，比较服务端生成的签名信息，与客户端提供的签名是否一致即可。
