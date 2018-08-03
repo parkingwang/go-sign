@@ -36,8 +36,8 @@ gos.SetNonceStr("ibuaiVcKdpRxkhJA")
 // 设置参与签名的其它参数
 gos.AddBody("plate_number", "豫A66666")
 
-// SecretKey，前后包装签名体字符串
-gos.SetSecretKeyWrapBody("d93047a4d6fe6111")
+// AppSecretKey，前后包装签名体字符串
+gos.SetAppSecretWrapBody("d93047a4d6fe6111")
 
 fmt.Println("生成签字字符串：" + gos.GetUnsignedString())
 fmt.Println("输出URL字符串：" + gos.GetSignedQuery())
