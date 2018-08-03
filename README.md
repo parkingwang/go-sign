@@ -2,7 +2,17 @@
 
 Http API 签名验证工具包，提供对API请求的签名生成、签名校验等工具类。
 
-# 0x00
+# 0x00 安装
+
+```
+$ go get -u github.com/parkingwang/go-sign
+```
+
+OR
+
+```
+dep ensure --add github.com/parkingwang/go-sign
+```
 
 # 0x01 生成签名信息
 
