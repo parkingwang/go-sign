@@ -48,7 +48,9 @@ func NewGoSignerHmac() *GoSigner {
 
 // SetBody 设置整个参数体Body对象。
 func (slf *GoSigner) SetBody(body url.Values) {
-	slf.body = body
+	for k, v := range body {
+		slf.body[k] = v
+	}
 }
 
 // AddBody 添加签名体字段和值
