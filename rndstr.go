@@ -1,12 +1,12 @@
 package sign
 
 import (
-	"time"
 	"math/rand"
+	"time"
 )
 
 //
-// Author: 陈永佳 chenyongjia@parkingwang.com, yoojiachen@gmail.com
+// Author: 陈哈哈 chenyongjia@parkingwang.com, yoojiachen@gmail.com
 // 生成随机字符串
 //
 

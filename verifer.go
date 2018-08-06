@@ -9,11 +9,11 @@ import (
 )
 
 //
-// Author: 陈永佳 chenyongjia@parkingwang.com, yoojiachen@gmail.com
+// Author: 陈哈哈 chenyongjia@parkingwang.com, yoojiachen@gmail.com
 //
 
 type GoVerifier struct {
-	*DefaultFields
+	*DefaultKeyName
 	body url.Values
 
 	timeout time.Duration // 签名过期时间
@@ -21,9 +21,9 @@ type GoVerifier struct {
 
 func NewGoVerifier() *GoVerifier {
 	return &GoVerifier{
-		DefaultFields: newDefaultSignFields(),
-		body:          make(url.Values),
-		timeout:       time.Minute * 5,
+		DefaultKeyName: newDefaultKeyName(),
+		body:           make(url.Values),
+		timeout:        time.Minute * 5,
 	}
 }
 
@@ -71,26 +71,26 @@ func (slf *GoVerifier) MustStrings(key string) []string {
 
 // MustInt64 获取Int64值
 func (slf *GoVerifier) MustInt64(key string) int64 {
-	return convertToInt64(slf.body[key])
+	return convertToInt64(slf.MustString(key))
 }
 
-// MustHasFields 必须包含指定的字段参数
-func (slf *GoVerifier) MustHasFields(keys ...string) error {
+// MustHasKeys 必须包含指定的字段参数
+func (slf *GoVerifier) MustHasKeys(keys ...string) error {
 	for _, key := range keys {
 		if _, hit := slf.body[key]; !hit {
-			return errors.New(fmt.Sprintf("PARAM_MISSED:<%s>", key))
+			return errors.New(fmt.Sprintf("KEY_MISSED:<%s>", key))
 		}
 	}
 	return nil
 }
 
-// MustHasFields 必须包含除特定的[time_stamp, nonce_str, sign, appid]等之外的指定的字段参数
-func (slf *GoVerifier) MustHasOtherFields(keys ...string) error {
-	fields := []string{slf.fieldNameTimestamp, slf.fieldNameNonceStr, slf.fieldNameSign, slf.fieldNameAppId}
+// MustHasKeys 必须包含除特定的[time_stamp, nonce_str, sign, appid]等之外的指定的字段参数
+func (slf *GoVerifier) MustHasOtherKeys(keys ...string) error {
+	fields := []string{slf.keyNameTimestamp, slf.keyNameNonceStr, slf.keyNameSign, slf.keyNameAppId}
 	if len(keys) > 0 {
 		fields = append(fields, keys...)
 	}
-	return slf.MustHasFields(fields...)
+	return slf.MustHasKeys(fields...)
 }
 
 // 检查时间戳有效期
@@ -98,34 +98,42 @@ func (slf *GoVerifier) CheckTimeStamp() error {
 	timestamp := slf.GetTimestamp()
 	thatTime := time.Unix(timestamp, 0)
 	if time.Now().Sub(thatTime) > slf.timeout {
-		return errors.New(fmt.Sprintf("TIMESTAMP_TIMEOUT<%d>", timestamp))
+		return errors.New(fmt.Sprintf("TIMESTAMP_TIMEOUT:<%d>", timestamp))
 	}
 	return nil
 }
 
 func (slf *GoVerifier) GetAppId() string {
-	return slf.MustString(slf.fieldNameAppId)
+	return slf.MustString(slf.keyNameAppId)
 }
 
 func (slf *GoVerifier) GetNonceStr() string {
-	return slf.MustString(slf.fieldNameNonceStr)
+	return slf.MustString(slf.keyNameNonceStr)
 }
 
 func (slf *GoVerifier) GetSign() string {
-	return slf.MustString(slf.fieldNameSign)
+	return slf.MustString(slf.keyNameSign)
 }
 
 func (slf *GoVerifier) GetTimestamp() int64 {
-	return slf.MustInt64(slf.fieldNameTimestamp)
+	return slf.MustInt64(slf.keyNameTimestamp)
 }
 
 // GetBodyWithoutSign 获取所有参数体。其中不包含sign 字段
 func (slf *GoVerifier) GetBodyWithoutSign() url.Values {
 	out := make(url.Values)
 	for k, v := range slf.body {
-		if k != slf.fieldNameSign {
+		if k != slf.keyNameSign {
 			out[k] = v
 		}
+	}
+	return out
+}
+
+func (slf *GoVerifier) GetBody() url.Values {
+	out := make(url.Values)
+	for k, v := range slf.body {
+		out[k] = v
 	}
 	return out
 }

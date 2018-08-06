@@ -3,7 +3,7 @@ package sign
 import "crypto/md5"
 
 //
-// Author: 陈永佳 chenyongjia@parkingwang.com, yoojiachen@gmail.com
+// Author: 陈哈哈 chenyongjia@parkingwang.com, yoojiachen@gmail.com
 //
 
 func Md5Sign(_, body string) []byte {
