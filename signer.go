@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"sort"
 	"strings"
+	"strconv"
 )
 
 //
@@ -53,6 +54,11 @@ func (slf *GoSigner) SetBody(body url.Values) {
 	}
 }
 
+// GetBody 返回Body内容
+func (slf *GoSigner) GetBody() url.Values {
+	return slf.body
+}
+
 // AddBody 添加签名体字段和值
 func (slf *GoSigner) AddBody(key string, value string) *GoSigner {
 	return slf.AddBodies(key, []string{value})
@@ -65,7 +71,12 @@ func (slf *GoSigner) AddBodies(key string, value []string) *GoSigner {
 
 // SetTimeStamp 设置时间戳参数
 func (slf *GoSigner) SetTimeStamp(ts int64) *GoSigner {
-	return slf.AddBody(slf.keyNameTimestamp, fmt.Sprintf("%d", ts))
+	return slf.AddBody(slf.keyNameTimestamp, strconv.FormatInt(ts, 10))
+}
+
+// GetTimeStamp 获取TimeStamp
+func (slf *GoSigner) GetTimeStamp() string {
+	return slf.body.Get(slf.keyNameTimestamp)
 }
 
 // SetNonceStr 设置随机字符串参数
@@ -73,9 +84,18 @@ func (slf *GoSigner) SetNonceStr(nonce string) *GoSigner {
 	return slf.AddBody(slf.keyNameNonceStr, nonce)
 }
 
+// GetNonceStr 返回NonceStr字符串
+func (slf *GoSigner) GetNonceStr() string {
+	return slf.body.Get(slf.keyNameNonceStr)
+}
+
 // SetAppId 设置AppId参数
 func (slf *GoSigner) SetAppId(appId string) *GoSigner {
 	return slf.AddBody(slf.keyNameAppId, appId)
+}
+
+func (slf *GoSigner) GetAppId() string {
+	return slf.body.Get(slf.keyNameAppId)
 }
 
 // RandNonceStr 自动生成16位随机字符串参数
@@ -116,18 +136,33 @@ func (slf *GoSigner) SetAppSecretWrapBody(appSecret string) *GoSigner {
 
 // GetSignBodyString 获取用于签名的原始字符串
 func (slf *GoSigner) GetSignBodyString() string {
+	return slf.MakeRawBodyString()
+}
+
+// MakeRawBodyString 获取用于签名的原始字符串
+func (slf *GoSigner) MakeRawBodyString() string {
 	return slf.bodyPrefix + slf.splitChar + slf.getSortedBodyString() + slf.splitChar + slf.bodySuffix
 }
 
 // GetSignedQuery 获取带签名参数的字符串
 func (slf *GoSigner) GetSignedQuery() string {
+	return slf.MakeSignedQuery()
+}
+
+// GetSignedQuery 获取带签名参数的字符串
+func (slf *GoSigner) MakeSignedQuery() string {
 	body := slf.getSortedBodyString()
 	sign := slf.GetSignature()
 	return body + "&" + slf.keyNameSign + "=" + sign
 }
 
-// GetSignature 获取签名字符串
+// GetSignature 获取签名
 func (slf *GoSigner) GetSignature() string {
+	return slf.MakeSign()
+}
+
+// GetSignature 获取签名
+func (slf *GoSigner) MakeSign() string {
 	sign := fmt.Sprintf("%x", slf.cryptoFunc(slf.secretKey, slf.GetSignBodyString()))
 	return sign
 }
